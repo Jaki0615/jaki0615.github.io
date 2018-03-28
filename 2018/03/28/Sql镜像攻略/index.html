@@ -5,15 +5,24 @@
   
 
   
-  <title>索引 | Hexo</title>
+  <title>Sql镜像攻略 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="article">
-<meta property="og:title" content="索引">
-<meta property="og:url" content="http://jaki0615.github.io/2018/03/12/索引/index.html">
+  <meta name="description" content="镜像，他是一种容灾技术。 我们做镜像的时候，需要考虑的坑：  备份 还原需要时间  镜像不支持简单恢复模式和大容量恢复模式。也不支持镜像master、model、msdb、tempdb——即，系统数据库。 镜像有2种方式，一种是通过sql页面，另一种是脚本做。个人更倾向于脚本。 界面方式 tips:  镜像server 还原数据库 restore with norecovery 配置安全性—— 账">
+<meta name="keywords" content="Sql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sql镜像攻略">
+<meta property="og:url" content="http://jaki0615.github.io/2018/03/28/Sql镜像攻略/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:updated_time" content="2018-03-12T08:55:49.405Z">
+<meta property="og:description" content="镜像，他是一种容灾技术。 我们做镜像的时候，需要考虑的坑：  备份 还原需要时间  镜像不支持简单恢复模式和大容量恢复模式。也不支持镜像master、model、msdb、tempdb——即，系统数据库。 镜像有2种方式，一种是通过sql页面，另一种是脚本做。个人更倾向于脚本。 界面方式 tips:  镜像server 还原数据库 restore with norecovery 配置安全性—— 账">
+<meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/8.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/102.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/104.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/106.jpg">
+<meta property="og:updated_time" content="2018-03-28T03:17:04.391Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="索引">
+<meta name="twitter:title" content="Sql镜像攻略">
+<meta name="twitter:description" content="镜像，他是一种容灾技术。 我们做镜像的时候，需要考虑的坑：  备份 还原需要时间  镜像不支持简单恢复模式和大容量恢复模式。也不支持镜像master、model、msdb、tempdb——即，系统数据库。 镜像有2种方式，一种是通过sql页面，另一种是脚本做。个人更倾向于脚本。 界面方式 tips:  镜像server 还原数据库 restore with norecovery 配置安全性—— 账">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/8.png">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -60,10 +69,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-索引" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Sql镜像攻略" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2018/03/12/索引/" class="article-date">
-  <time datetime="2018-03-12T08:55:49.000Z" itemprop="datePublished">2018-03-12</time>
+    <a href="/2018/03/28/Sql镜像攻略/" class="article-date">
+  <time datetime="2018-03-28T01:52:58.000Z" itemprop="datePublished">2018-03-28</time>
 </a>
     
   </div>
@@ -74,7 +83,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      索引
+      Sql镜像攻略
     </h1>
   
 
@@ -82,32 +91,41 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>镜像，他是一种容灾技术。</p>
+<p>我们做镜像的时候，需要考虑的坑：</p>
+<ul>
+<li>备份</li>
+<li>还原需要时间</li>
+</ul>
+<p>镜像不支持简单恢复模式和大容量恢复模式。也不支持镜像master、model、msdb、tempdb——即，系统数据库。</p>
+<p>镜像有2种方式，一种是通过sql页面，另一种是脚本做。<br>个人更倾向于脚本。</p>
+<h1 id="界面方式"><a href="#界面方式" class="headerlink" title="界面方式"></a>界面方式</h1><p><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/8.png" alt="image"></p>
+<p>tips:</p>
+<ul>
+<li>镜像server 还原数据库 restore with norecovery<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/102.png" alt="image"></li>
+<li>配置安全性—— 账户：域名\登录名</li>
+</ul>
+<h1 id="脚本方式"><a href="#脚本方式" class="headerlink" title="脚本方式"></a>脚本方式</h1><p>步骤概述<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/104.jpg" alt="image"><br>具体脚本<a href="https://github.com/Jaki0615/code/blob/master/failover.sql" target="_blank" rel="noopener">点击此处</a></p>
+<p>做完镜像，镜像数据库是不能使用的：<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/106.jpg" alt="image"></p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/12/索引/" data-id="cjfait9ou0004eswglnqkrzbd" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/28/Sql镜像攻略/" data-id="cjfait9om0001eswg3zlntbww" class="article-share-link">Teilen</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Sql/">Sql</a></li></ul>
+
     </footer>
   </div>
   
     
 <nav id="article-nav">
   
-    <a href="/2018/03/19/海淘网站大汇总/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Neuer</strong>
-      <div class="article-nav-title">
-        
-          海淘网站大汇总
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/03/12/mysql主从复制/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2018/03/19/Git搭建个人blog—大白话版/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Älter</strong>
-      <div class="article-nav-title">mysql主从复制</div>
+      <div class="article-nav-title">Git搭建个人blog——大白话版</div>
     </a>
   
 </nav>
