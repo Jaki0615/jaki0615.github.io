@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql2.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql3.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql4.png">
-<meta property="og:updated_time" content="2018-04-03T06:12:04.053Z">
+<meta property="og:updated_time" content="2018-04-03T07:06:22.334Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="日志备份和恢复">
 <meta name="twitter:description" content="日志日志备份：  为防止数据损坏而提供的保障。 数据归档 数据迁移  一个数据库可以有多个日志文件，但是，逻辑上他们可以看成一个。SQL对日志文件的管理，是将逻辑上的这一个ldf，分成多个逻辑上的虚拟日志文件(virtual log files,简称VLF) 日志以整个VLF作为单位进行增长和收缩 日志文件是顺序读取，不像data page并行访问，所以日志文件分成多个不会有性能上的提升  一VL">
@@ -58,9 +58,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://jaki0615.github.io"></form>
@@ -120,46 +120,35 @@
 <li>截断：日志中MinLsn之前的状态为可重用(MinLsn之前的日志失效)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">截断方法：</span><br><span class="line"></span><br><span class="line">1 恢复Mode——简单Mode【自动截断】（事务一旦提交或回滚，该日志这部分就可以重新使用）</span><br><span class="line">checkpoint会遍历VLF，检查是否有日志可以截断。</span><br><span class="line">如果有inactive的VLF时，CheckPoint都会将可截断部分进行截断，并将MinLSN向后推.</span><br><span class="line"></span><br><span class="line">2 恢复Mode——完整Mode（CheckPoint不会截断日志，需手动截断）</span><br><span class="line">a.完整备份——sql认为需要保存最老LSN之前的LSN，一旦再有活动事务就会增长VLF</span><br><span class="line">——不会自动截断——需要手动截断</span><br><span class="line">b.日志备份，选择日志截断</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<blockquote>
-<blockquote>
-<p>什么是MinLSN？<br>Min Lsn：活动事务在日志中的最小LSN<br>例子：<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql3.png" alt="image"></p>
-</blockquote>
-</blockquote>
+<font color="red">什么是MinLSN？</font>
+
+<p>Min Lsn：活动事务在日志中的最小LSN</p>
+<p>例子：<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql3.png" alt="image"></p>
 <p>讲解：最新的LSN是148，147是CheckPoint,在这个CheckPoint之前事务1已经完成，<br>而事务2还未完成，所以对应的MinLSN应该是事务2的开始，也就是142.<br>而从MinLSN到日志的逻辑结尾处，则称为活动日志(Active Log)，LSN142~148</p>
-<font color="red">不能截断：</font><br>* 活动事务(一个执行n久[忘记提交])的日志是无法被截断并且在最老活动事务之后开始的所有事务的日志记录都不能被截断。<br><br>三sql作业自动截断收缩日志<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">--以防万一</span><br><span class="line">数据库完整备份</span><br><span class="line">--设置数据库恢复模式为简单</span><br><span class="line">ALTER DATABASE  [mydb2]  SET RECOVERY SIMPLE;</span><br><span class="line"> --收缩日志文件</span><br><span class="line"> DBCC SHRINKFILE (mydb2，TRUNCATEONLY);</span><br><span class="line"> --恢复数据库还原模式为完整</span><br><span class="line"> ALTER DATABASE [mydb2] SET RECOVERY FULL</span><br></pre></td></tr></table></figure><br><br># 日志恢复(还原)<br><font color="#3299cc">日志恢复数据要求从最近一次完整或差异备份到所恢复的时间点之间的日志链是连续的</font>
+<font color="red">不能截断：</font><br>* 活动事务(一个执行n久[忘记提交])的日志是无法被截断并且在最老活动事务之后开始的所有事务的日志记录都不能被截断。<br><br>三sql作业自动截断收缩日志<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">--以防万一</span><br><span class="line">数据库完整备份</span><br><span class="line">--设置数据库恢复模式为简单</span><br><span class="line">ALTER DATABASE  [mydb2]  SET RECOVERY SIMPLE;</span><br><span class="line"> --收缩日志文件</span><br><span class="line"> DBCC SHRINKFILE (mydb2，TRUNCATEONLY);</span><br><span class="line"> --恢复数据库还原模式为完整</span><br><span class="line"> ALTER DATABASE [mydb2] SET RECOVERY FULL</span><br></pre></td></tr></table></figure><br><br># 日志恢复(还原)<br><br><font color="#3299cc">日志恢复数据要求从最近一次完整或差异备份到所恢复的时间点之间的日志链是连续的</font>
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1复制数据：从完整备份和差异备份中将数据、索引页和日志复制到被恢复数据库文件.</span><br><span class="line">2Redo重做：日志中事务在被恢复数据库中重做一遍。——数据库不可使用</span><br><span class="line">3Undo撤销：Recovery，参考活动事务表，未提交事务回滚。——数据库可用。不允许再恢复后续备份.</span><br><span class="line"></span><br><span class="line">常见恢复数据库做法：</span><br><span class="line">还原完整备份log ——noRecovery</span><br><span class="line">还原log，选择NoRecovery——redo</span><br><span class="line">还原最后一个log，选择Reconvery——undo（这个操作可以通过还原日志尾部时，指定Recovery选项进行）</span><br></pre></td></tr></table></figure>
 <p>一数据处理流程<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sql server 采用Write-Ahead logging——先写日志、再写磁盘.</span><br><span class="line">不仅保证了ACID的A和D，还大大减少了IO操作。写入datapage交给checkpoint和lazy-wirte【c-&gt;e】</span><br></pre></td></tr></table></figure></p>
 <p><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql4.png" alt="image"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Check Point检查点机制</span><br><span class="line">1触发：</span><br><span class="line">* DPT||日志 达到70% </span><br><span class="line">* 周期写入</span><br><span class="line">2机制：</span><br><span class="line">* DPT中LSN 小于等于 log外存的末尾LSN，符合条件的写入外存E</span><br><span class="line">原因：确保刷进DATA PAGE的必有日志。</span><br><span class="line">3用处：</span><br><span class="line">* 减少服务器恢复时间。检查点这个LSN之前的日志都落磁盘了。</span><br><span class="line">* 注意check point 不care 数据是否commit</span><br></pre></td></tr></table></figure>
 <p>二恢复场景</p>
-<blockquote>
 <font color="#3299cc"> A：什么都不做</font>
-</blockquote>
-<blockquote>
-<blockquote>
+
 <p>没有commit，日志还没来得及写进去，就断电<br>——日志没有，不影响data page</p>
-</blockquote>
-</blockquote>
-<blockquote>
-<p><font color="#3299cc"> B：redo重做</font></p>
-<blockquote>
+<font color="#3299cc"> B：redo重做</font>
+
 <p>sql commit，日志也写进去了，data page 没做，就断电</p>
-</blockquote>
-</blockquote>
-<blockquote>
-<p><font color="#3299cc">undo撤销</font></p>
-<blockquote>
-<p>sql 没commit的，必须回滚。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">苦逼的场景:</span><br><span class="line">开始一个事务(很长,忘记commit)，在一个月之后断电了....</span><br><span class="line">因为时间太长，所以</span><br><span class="line">1 log 日志 也有了 事务里面每条操作的记录——系统扫进去</span><br><span class="line">2 check point: 肯定把数据刷到 data page ——周期写入</span><br><span class="line">3 日志不能截断</span><br><span class="line">这时候，数据库要回滚，怎么回滚？</span><br><span class="line">回答：</span><br><span class="line">1check point肯定不能用了，因为他的LSN一定是最近的</span><br><span class="line">2 要回滚到最老活动事务,就是MIN LSN</span><br><span class="line">3 写操作有undo列，日志找到undo列的LSN回滚。</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-</blockquote>
+<font color="#3299cc"> C: undo撤销</font>
+
+<p>sql 没commit的，必须回滚。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">苦逼的场景:</span><br><span class="line">开始一个事务(很长,忘记commit)，在一个月之后断电了....</span><br><span class="line">因为时间太长，所以</span><br><span class="line">1 log 日志 也有了 事务里面每条操作的记录——系统扫进去</span><br><span class="line">2 check point: 肯定把数据刷到 data page ——周期写入</span><br><span class="line">3 日志不能截断</span><br><span class="line">这时候，数据库要回滚，怎么回滚？</span><br><span class="line">回答：</span><br><span class="line">1check point肯定不能用了，因为他的LSN一定是最近的</span><br><span class="line">2 要回滚到最老活动事务,就是MIN LSN</span><br><span class="line">3 写操作有undo列，日志找到undo列的LSN回滚。</span><br></pre></td></tr></table></figure>
 <p>相比之下mysql的undo就好理解的多——mysql日志【后续补】</p>
 <p>三常用命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1 查看VLF</span><br><span class="line">  dbcc loginfo(&apos;DATABASE NAME&apos;)</span><br><span class="line">2 数据库日志文件使用率</span><br><span class="line">  DBCC SQLPERF(LOGSPACE)</span><br><span class="line">3 查看数据库是否是自动截断</span><br><span class="line">  select * from sys.database_recovery_status</span><br><span class="line">4 查看事务日志记录</span><br><span class="line">  select * from sys.fn_dblog</span><br><span class="line">  where allocunitname=&apos;table name&apos;</span><br></pre></td></tr></table></figure></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/02/日志备份和恢复/" data-id="cjfj9pi6x0008o4wgmqwsc5h1" class="article-share-link">Share</a>
+      <a data-url="http://jaki0615.github.io/2018/04/02/日志备份和恢复/" data-id="cjfjbotlc0009qwwgqbukrn78" class="article-share-link">Partager</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li></ul>
@@ -172,7 +161,7 @@
   
   
     <a href="/2018/04/02/内部存储/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
+      <strong class="article-nav-caption">Ancien</strong>
       <div class="article-nav-title">内部存储</div>
     </a>
   
@@ -190,7 +179,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
+    <h3 class="widget-title">Mot-clés</h3>
     <div class="widget">
       <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sql/">Sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/护肤/">护肤</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/海淘/">海淘</a></li></ul>
     </div>
@@ -200,7 +189,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
+    <h3 class="widget-title">Nuage de mot-clés</h3>
     <div class="widget tagcloud">
       <a href="/tags/Sql/" style="font-size: 10px;">Sql</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sql-mssql-日志/" style="font-size: 10px;">sql mssql 日志</a> <a href="/tags/护肤/" style="font-size: 10px;">护肤</a> <a href="/tags/海淘/" style="font-size: 10px;">海淘</a>
     </div>
@@ -219,7 +208,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
         
@@ -256,7 +245,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2018 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé par <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
