@@ -61,6 +61,42 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-mysql性能优化" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/06/07/mysql性能优化/" class="article-date">
+  <time datetime="2018-06-07T09:14:42.000Z" itemprop="datePublished">2018-06-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/07/mysql性能优化/">mysql性能优化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://jaki0615.github.io/2018/06/07/mysql性能优化/" data-id="cji4c32zd000854wg6hm7kyab" class="article-share-link">Teilen</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-mysql慢日志slow-log" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2018/06/07/mysql慢日志slow-log/" class="article-date">
@@ -83,7 +119,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="一常用相关参数"><a href="#一常用相关参数" class="headerlink" title="一常用相关参数"></a>一常用相关参数</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#查看慢日志相关参数</span><br><span class="line">show variables like &apos;%slow%&apos;；  </span><br><span class="line">show variables like &apos;%log_quer%&apos;;</span><br><span class="line">show variables like &apos;%long_quer%&apos;；</span><br><span class="line"></span><br><span class="line">#动态设置参数，服务重启作废,建议在my.cnf修改，方便维护</span><br><span class="line">set global log_queries_not_using_indexes=1;</span><br><span class="line">set global innodb_stats_persistent_sample_pages=20;   #默认分析20页</span><br></pre></td></tr></table></figure>
+        <p>OS:liunx  mysql：5.7</p>
+<h1 id="一常用相关参数"><a href="#一常用相关参数" class="headerlink" title="一常用相关参数"></a>一常用相关参数</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#查看慢日志相关参数</span><br><span class="line">show variables like &apos;%slow%&apos;；  </span><br><span class="line">show variables like &apos;%log_quer%&apos;;</span><br><span class="line">show variables like &apos;%long_quer%&apos;；</span><br><span class="line"></span><br><span class="line">#动态设置参数，服务重启作废,建议在my.cnf修改，方便维护</span><br><span class="line">set global log_queries_not_using_indexes=1;</span><br><span class="line">set global innodb_stats_persistent_sample_pages=20;   #默认分析20页</span><br></pre></td></tr></table></figure>
 <h1 id="二如何分析慢日志"><a href="#二如何分析慢日志" class="headerlink" title="二如何分析慢日志"></a>二如何分析慢日志</h1><p>分析日志的总方针<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 查询次数多且每次查询占用时间长的sql</span><br><span class="line">2 io大的sql </span><br><span class="line">3 未加索引的</span><br></pre></td></tr></table></figure></p>
 <h2 id="1-mysqldumpslow"><a href="#1-mysqldumpslow" class="headerlink" title="1 mysqldumpslow"></a>1 mysqldumpslow</h2><p>mysqldumpslow分析报表<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql5.png" alt="image"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">count：执行次数</span><br><span class="line">time：执行时间</span><br><span class="line">lock：锁定时间</span><br><span class="line">rows：检索出来的行数</span><br><span class="line">root：谁执行的</span><br><span class="line">sql的具体内容</span><br></pre></td></tr></table></figure></p>
 <h2 id="2-pt-query-digest"><a href="#2-pt-query-digest" class="headerlink" title="2 pt-query-digest"></a>2 pt-query-digest</h2><p><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql6.png" alt="image"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">***总体统计结果</span><br><span class="line">一总共多少sql</span><br><span class="line">overall：多少查询，整合成多少个不一样的查询</span><br><span class="line">二总共执行情况</span><br><span class="line">exec time：执行时间 ——总共  最小  最大</span><br><span class="line">lock time： 锁定时间</span><br><span class="line">rows sent： 推出多少行</span><br><span class="line">rows examine：扫描多少行</span><br><span class="line">query size：</span><br><span class="line">***查询分组统计，对查询进行参数化并分组，按照总执行时长从大到小</span><br><span class="line">三每组query响应情况</span><br><span class="line">responsetime：哪些语句响应时间是最多的</span><br><span class="line">calls：调用多少次</span><br></pre></td></tr></table></figure></p>
@@ -93,7 +130,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/06/07/mysql慢日志slow-log/" data-id="cji4bh85p0003vowgp0csa6dr" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/06/07/mysql慢日志slow-log/" data-id="cji4c32zf000954wg9bdr1zza" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li></ul>
@@ -147,7 +184,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/26/办理居住证积分和档案的经历/" data-id="cji4bh85v0005vowgu52x7puj" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/26/办理居住证积分和档案的经历/" data-id="cji4c32zj000d54wgltgsfl84" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/居住证积分/">居住证积分</a></li></ul>
@@ -190,7 +227,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/17/口红试色/" data-id="cji4bh88m000uvowgnshapvhb" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/17/口红试色/" data-id="cji4c32zl000f54wg5yx2svmp" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
@@ -281,7 +318,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/02/日志备份和恢复/" data-id="cji4bh87a000rvowgva4k9hfa" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/02/日志备份和恢复/" data-id="cji4c32zt000h54wg8t6t5n9r" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li></ul>
@@ -319,7 +356,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/02/内部存储/" data-id="cji4bh85y0008vowg38uu5a4y" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/02/内部存储/" data-id="cji4c32zh000b54wg4her8w31" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -360,7 +397,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/02/空瓶记/" data-id="cji4bh866000dvowg0scsexht" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/02/空瓶记/" data-id="cji4c32zy000l54wgj5ne6fda" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/护肤/">护肤</a></li></ul>
@@ -414,7 +451,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/28/Sql镜像攻略/" data-id="cji4bh85h0001vowgaxmhvl78" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/28/Sql镜像攻略/" data-id="cji4c32z1000154wgvg5nfr3w" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Sql/">Sql</a></li></ul>
@@ -484,7 +521,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/19/Git搭建个人blog—大白话版/" data-id="cji4bh863000bvowg4tl2zb93" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/19/Git搭建个人blog—大白话版/" data-id="cji4c32yu000054wgncnnzdvk" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/">github</a></li></ul>
@@ -538,48 +575,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/19/海淘网站大汇总/" data-id="cji4bh8610009vowglg9dtlcs" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/19/海淘网站大汇总/" data-id="cji4c32zw000j54wgay7rqrbq" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/海淘/">海淘</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-索引" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/03/12/索引/" class="article-date">
-  <time datetime="2018-03-12T08:55:49.000Z" itemprop="datePublished">2018-03-12</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/12/索引/">索引</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/12/索引/" data-id="cji4bh86g000fvowgje27wovo" class="article-share-link">Teilen</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/">sql</a></li></ul>
 
     </footer>
   </div>
@@ -606,7 +605,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sql/">Sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/主从复制/">主从复制</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/居住证积分/">居住证积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/护肤/">护肤</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/海淘/">海淘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sql/">Sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/主从复制/">主从复制</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/居住证积分/">居住证积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/护肤/">护肤</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/海淘/">海淘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
     </div>
   </div>
 
@@ -616,7 +615,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Sql/" style="font-size: 10px;">Sql</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sql-mssql-日志/" style="font-size: 10px;">sql mssql 日志</a> <a href="/tags/主从复制/" style="font-size: 10px;">主从复制</a> <a href="/tags/居住证积分/" style="font-size: 10px;">居住证积分</a> <a href="/tags/慢日志-slow-log/" style="font-size: 10px;">慢日志 slow-log</a> <a href="/tags/护肤/" style="font-size: 10px;">护肤</a> <a href="/tags/海淘/" style="font-size: 10px;">海淘</a> <a href="/tags/美妆/" style="font-size: 10px;">美妆</a>
+      <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/Sql/" style="font-size: 10px;">Sql</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sql-mssql-日志/" style="font-size: 10px;">sql mssql 日志</a> <a href="/tags/主从复制/" style="font-size: 10px;">主从复制</a> <a href="/tags/居住证积分/" style="font-size: 10px;">居住证积分</a> <a href="/tags/慢日志-slow-log/" style="font-size: 10px;">慢日志 slow-log</a> <a href="/tags/护肤/" style="font-size: 10px;">护肤</a> <a href="/tags/海淘/" style="font-size: 10px;">海淘</a> <a href="/tags/美妆/" style="font-size: 10px;">美妆</a>
     </div>
   </div>
 
@@ -638,6 +637,10 @@
       <ul>
         
           <li>
+            <a href="/2018/06/07/mysql性能优化/">mysql性能优化</a>
+          </li>
+        
+          <li>
             <a href="/2018/06/07/mysql慢日志slow-log/">mysql慢日志slow-log</a>
           </li>
         
@@ -651,10 +654,6 @@
         
           <li>
             <a href="/2018/04/02/日志备份和恢复/">日志备份和恢复</a>
-          </li>
-        
-          <li>
-            <a href="/2018/04/02/内部存储/">内部存储</a>
           </li>
         
       </ul>
