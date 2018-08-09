@@ -7,14 +7,21 @@
   
   <title>索引 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="keywords" content="sql">
+  <meta name="description" content="环境：1234* OS:Linux   * mysql：5.7* 数据库：mysql sample-- employees * 数据库：mssql 我会结合mysql和mssql来写。虽然是不同的数据库，但是二者索引的本质是一样的。 索引的数据结构mssql和mysql innodb存储引擎的索引使用的是B+树结构。 B+树的概念，网上一大堆，这里不赘述。我用一个图来展示B+树是如何插入元素的。">
+<meta name="keywords" content="sql">
 <meta property="og:type" content="article">
 <meta property="og:title" content="索引">
 <meta property="og:url" content="http://jaki0615.github.io/2018/03/12/索引/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:updated_time" content="2018-03-28T05:24:38.818Z">
+<meta property="og:description" content="环境：1234* OS:Linux   * mysql：5.7* 数据库：mysql sample-- employees * 数据库：mssql 我会结合mysql和mssql来写。虽然是不同的数据库，但是二者索引的本质是一样的。 索引的数据结构mssql和mysql innodb存储引擎的索引使用的是B+树结构。 B+树的概念，网上一大堆，这里不赘述。我用一个图来展示B+树是如何插入元素的。">
+<meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql9.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql10.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql11.jpg">
+<meta property="og:updated_time" content="2018-08-09T00:55:34.984Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="索引">
+<meta name="twitter:description" content="环境：1234* OS:Linux   * mysql：5.7* 数据库：mysql sample-- employees * 数据库：mssql 我会结合mysql和mssql来写。虽然是不同的数据库，但是二者索引的本质是一样的。 索引的数据结构mssql和mysql innodb存储引擎的索引使用的是B+树结构。 B+树的概念，网上一大堆，这里不赘述。我用一个图来展示B+树是如何插入元素的。">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql9.png">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -83,11 +90,35 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>环境：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* OS:Linux   </span><br><span class="line">* mysql：5.7</span><br><span class="line">* 数据库：mysql sample-- employees </span><br><span class="line">* 数据库：mssql</span><br></pre></td></tr></table></figure></p>
+<p>我会结合mysql和mssql来写。虽然是不同的数据库，但是二者索引的本质是一样的。</p>
+<h1 id="索引的数据结构"><a href="#索引的数据结构" class="headerlink" title="索引的数据结构"></a>索引的数据结构</h1><p>mssql和mysql innodb存储引擎的索引使用的是B+树结构。</p>
+<p>B+树的概念，网上一大堆，这里不赘述。我用一个图来展示B+树是如何插入元素的。</p>
+<ol>
+<li>索引插入算法<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql9.png" alt="image"></li>
+<li>文字看不懂？看图片吧！<br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql10.jpg" alt="image"><br><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql11.jpg" alt="image"></li>
+</ol>
+<h1 id="索引概念和特点"><a href="#索引概念和特点" class="headerlink" title="索引概念和特点"></a>索引概念和特点</h1><p>一聚集索引Clustered Index</p>
+<ol>
+<li>列可以有重复值。如果主键默认做聚集索引，则符合唯一约束.</li>
+<li>一旦创建聚集索引，整张表就变成了索引组织表(B+树结构)</li>
+<li>索引组织表是有序的，堆表是无序的。</li>
+<li>只能有一个</li>
+<li>mysql的表就是一张索引组织表，若无主键，InnoDB engine会自动创建一个6字节（48bit）列作为主键。mssql则不会</li>
+<li>当select * 的时候，检索最快，因为叶子节点有全部的数据</li>
+<li>影响写的性能</li>
+</ol>
+<p>二非聚集索引NonClustered Index</p>
+<ol>
+<li>叶子节点上保存二个信息：索引字段值， 对应聚集索引键值(无聚集索引，则是数据位置的指针) </li>
+<li>可以有多个非聚集索引</li>
+<li>select * 浪费性能，需要标签查找。select 非聚集列 则最快</li>
+</ol>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/12/索引/" data-id="cji4c3316000x54wgkjq0xwqo" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/12/索引/" data-id="cjklurjnv000ba0wg6nj95eer" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/">sql</a></li></ul>
@@ -129,7 +160,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sql/">Sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/主从复制/">主从复制</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/居住证积分/">居住证积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/护肤/">护肤</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/海淘/">海淘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sql/">Sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/主从复制/">主从复制</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/居住证积分/">居住证积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能优化/">性能优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/护肤/">护肤</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/海淘/">海淘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
     </div>
   </div>
 
@@ -139,7 +170,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/Sql/" style="font-size: 10px;">Sql</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sql-mssql-日志/" style="font-size: 10px;">sql mssql 日志</a> <a href="/tags/主从复制/" style="font-size: 10px;">主从复制</a> <a href="/tags/居住证积分/" style="font-size: 10px;">居住证积分</a> <a href="/tags/慢日志-slow-log/" style="font-size: 10px;">慢日志 slow-log</a> <a href="/tags/护肤/" style="font-size: 10px;">护肤</a> <a href="/tags/海淘/" style="font-size: 10px;">海淘</a> <a href="/tags/美妆/" style="font-size: 10px;">美妆</a>
+      <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/Sql/" style="font-size: 10px;">Sql</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sql-mssql-日志/" style="font-size: 10px;">sql mssql 日志</a> <a href="/tags/主从复制/" style="font-size: 10px;">主从复制</a> <a href="/tags/居住证积分/" style="font-size: 10px;">居住证积分</a> <a href="/tags/性能优化/" style="font-size: 10px;">性能优化</a> <a href="/tags/慢日志-slow-log/" style="font-size: 10px;">慢日志 slow-log</a> <a href="/tags/护肤/" style="font-size: 10px;">护肤</a> <a href="/tags/海淘/" style="font-size: 10px;">海淘</a> <a href="/tags/美妆/" style="font-size: 10px;">美妆</a>
     </div>
   </div>
 

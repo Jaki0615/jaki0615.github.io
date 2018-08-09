@@ -83,13 +83,32 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>OS:Linux   mysql：5.7</p>
+<p>脚本例子：mysql employees sample数据库</p>
+<h1 id="性能优化outline"><a href="#性能优化outline" class="headerlink" title="性能优化outline"></a>性能优化outline</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">程序：</span><br><span class="line">架构设计  —— 搭建缓存，负载均衡</span><br><span class="line">web服务器  —— 记录日志，tsql抽出来，对于复杂业务废弃ORM</span><br><span class="line">硬件 OS：</span><br><span class="line">IO —— SSD,磁盘</span><br><span class="line">CPU —— SQL有限制的</span><br><span class="line">内存 —— SQL有贪婪算法</span><br><span class="line">数据库：</span><br><span class="line">慢日志</span><br><span class="line">索引</span><br><span class="line">日志文件收缩</span><br></pre></td></tr></table></figure>
+<h1 id="零-准备工作"><a href="#零-准备工作" class="headerlink" title="零 准备工作"></a>零 准备工作</h1><ul>
+<li>点击URL，了解<a href="https://jaki0615.github.io/2018/06/07/mysql%E6%85%A2%E6%97%A5%E5%BF%97slow-log/">慢日志</a></li>
+<li><p>sql语句执行顺序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1笛卡尔积</span><br><span class="line">2on</span><br><span class="line">3left join，加外部行</span><br><span class="line">4where</span><br><span class="line">5group up</span><br><span class="line">6having</span><br><span class="line">7select</span><br><span class="line">8orderby</span><br><span class="line">9limit</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>explain执行计划怎么看</p>
+</li>
+</ul>
+<h1 id="一Sql语句优化"><a href="#一Sql语句优化" class="headerlink" title="一Sql语句优化"></a>一Sql语句优化</h1><p>1程序中关于数据库操作的语句提取出来，在数据库中以存储过程的形式处理<br>好处：减少预编译，减少io，实现程序高内聚，低耦合。</p>
+<p>1有效利用索引，避免索引失效：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">* mysql不支持函数索引。不绝对</span><br><span class="line">eg.</span><br><span class="line">explain select * from film_actor where date_format(last_update,&apos;%y-%m-%d&apos;)&gt;&apos;2006-02-15&apos;;</span><br><span class="line"></span><br><span class="line">* 条件中有or，就算条件之一带索引，索引也不会work</span><br><span class="line">sln：所有or条件都添加索引</span><br><span class="line"></span><br><span class="line">*对于联合索引，应用《最左前缀索引》原则</span><br><span class="line">eg.</span><br><span class="line">索引ix_id_name， where条件中使用name，而没有用id列，则索引失效。</span><br><span class="line">要了解[索引](https://jaki0615.github.io/2018/03/12/%E7%B4%A2%E5%BC%95/)本质</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://raw.githubusercontent.com/Jaki0615/PIC/master/sql8.png" alt="image"></p>
+<p>2建议考虑优化的位置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">* where从句 </span><br><span class="line">* groupby从句 ，orderby 从句 ： 需要考虑排序</span><br><span class="line">* join on的连接条件</span><br><span class="line">* explain extra:using filesort,using temprorary</span><br><span class="line">* 子查询改为派生表，但不绝对</span><br></pre></td></tr></table></figure></p>
+<p>3建议mysql添加自增长列作为聚集索引列。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">* 键值长度小，每个页容纳的索引节点以及叶子节点就会变多，节省磁盘存储空间，也节省维护开销</span><br><span class="line">* 对于插入操作，只要属性添加就可以，不会有过多的分页，以及从磁盘读到内存，再写回磁盘的io开销。</span><br></pre></td></tr></table></figure>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/06/07/mysql性能优化/" data-id="cji4c32zd000854wg6hm7kyab" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/06/07/mysql性能优化/" data-id="cjklurjnm0004a0wgupfoxgz1" class="article-share-link">Teilen</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/性能优化/">性能优化</a></li></ul>
+
     </footer>
   </div>
   
@@ -130,7 +149,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/06/07/mysql慢日志slow-log/" data-id="cji4c32zf000954wg9bdr1zza" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/06/07/mysql慢日志slow-log/" data-id="cjklurjnk0003a0wgbn6yllkg" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li></ul>
@@ -184,7 +203,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/26/办理居住证积分和档案的经历/" data-id="cji4c32zj000d54wgltgsfl84" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/26/办理居住证积分和档案的经历/" data-id="cjklurjoj000ta0wg07u0n97o" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/居住证积分/">居住证积分</a></li></ul>
@@ -227,7 +246,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/17/口红试色/" data-id="cji4c32zl000f54wg5yx2svmp" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/17/口红试色/" data-id="cjklurjnx000da0wg1wi8h9fc" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
@@ -318,7 +337,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/02/日志备份和恢复/" data-id="cji4c32zt000h54wg8t6t5n9r" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/02/日志备份和恢复/" data-id="cjklurjnz000fa0wgoh4shkw5" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li></ul>
@@ -356,7 +375,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/02/内部存储/" data-id="cji4c32zh000b54wg4her8w31" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/02/内部存储/" data-id="cjklurjnr0008a0wg8g104ah8" class="article-share-link">Teilen</a>
       
       
     </footer>
@@ -397,7 +416,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/04/02/空瓶记/" data-id="cji4c32zy000l54wgj5ne6fda" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/04/02/空瓶记/" data-id="cjklurjow000xa0wgdwf7uiix" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/护肤/">护肤</a></li></ul>
@@ -451,7 +470,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/28/Sql镜像攻略/" data-id="cji4c32z1000154wgvg5nfr3w" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/28/Sql镜像攻略/" data-id="cjklurjov000wa0wg6smwma96" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Sql/">Sql</a></li></ul>
@@ -521,7 +540,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/19/Git搭建个人blog—大白话版/" data-id="cji4c32yu000054wgncnnzdvk" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/19/Git搭建个人blog—大白话版/" data-id="cjklurjnt0009a0wg9b5avw4c" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/">github</a></li></ul>
@@ -575,7 +594,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://jaki0615.github.io/2018/03/19/海淘网站大汇总/" data-id="cji4c32zw000j54wgay7rqrbq" class="article-share-link">Teilen</a>
+      <a data-url="http://jaki0615.github.io/2018/03/19/海淘网站大汇总/" data-id="cjklurjo3000ha0wgydx738tw" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/海淘/">海淘</a></li></ul>
@@ -605,7 +624,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sql/">Sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/主从复制/">主从复制</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/居住证积分/">居住证积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/护肤/">护肤</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/海淘/">海淘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sql/">Sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-mssql-日志/">sql mssql 日志</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/主从复制/">主从复制</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/居住证积分/">居住证积分</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能优化/">性能优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/慢日志-slow-log/">慢日志 slow-log</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/护肤/">护肤</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/海淘/">海淘</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/美妆/">美妆</a></li></ul>
     </div>
   </div>
 
@@ -615,7 +634,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/Sql/" style="font-size: 10px;">Sql</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sql-mssql-日志/" style="font-size: 10px;">sql mssql 日志</a> <a href="/tags/主从复制/" style="font-size: 10px;">主从复制</a> <a href="/tags/居住证积分/" style="font-size: 10px;">居住证积分</a> <a href="/tags/慢日志-slow-log/" style="font-size: 10px;">慢日志 slow-log</a> <a href="/tags/护肤/" style="font-size: 10px;">护肤</a> <a href="/tags/海淘/" style="font-size: 10px;">海淘</a> <a href="/tags/美妆/" style="font-size: 10px;">美妆</a>
+      <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/Sql/" style="font-size: 10px;">Sql</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sql-mssql-日志/" style="font-size: 10px;">sql mssql 日志</a> <a href="/tags/主从复制/" style="font-size: 10px;">主从复制</a> <a href="/tags/居住证积分/" style="font-size: 10px;">居住证积分</a> <a href="/tags/性能优化/" style="font-size: 10px;">性能优化</a> <a href="/tags/慢日志-slow-log/" style="font-size: 10px;">慢日志 slow-log</a> <a href="/tags/护肤/" style="font-size: 10px;">护肤</a> <a href="/tags/海淘/" style="font-size: 10px;">海淘</a> <a href="/tags/美妆/" style="font-size: 10px;">美妆</a>
     </div>
   </div>
 
